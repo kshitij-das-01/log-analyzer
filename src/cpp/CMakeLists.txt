@@ -9,15 +9,33 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Include directories
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-# Source files will be added here as implementation progresses
-# set(SOURCE_FILES
-#     src/LogEntry.cpp
-#     src/InMemoryIndex.cpp
-# )
+# Source files
+set(SOURCE_FILES
+    src/LogLevel.cpp
+    src/LogEntry.cpp
+    src/InMemoryIndex.cpp
+)
 
-# add_library(log_analyzer_core ${SOURCE_FILES})
+add_library(log_analyzer_core ${SOURCE_FILES})
 
-# GoogleTest will be added here when tests are implemented
-# find_package(GTest REQUIRED)
-# add_executable(log_analyzer_tests tests/test_LogEntry.cpp)
-# target_link_libraries(log_analyzer_tests GTest::gtest_main)
+# GoogleTest — fetch and build
+include(FetchContent)
+FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+)
+FetchContent_MakeAvailable(googletest)
+
+# Test executable
+add_executable(log_analyzer_tests
+    tests/test_LogLevel.cpp
+    tests/test_LogEntry.cpp
+    tests/test_InMemoryIndex.cpp
+)
+
+target_link_libraries(log_analyzer_tests PRIVATE log_analyzer_core GTest::gtest_main)
+
+# Enable testing
+include(CTest)
+add_test(NAME log_analyzer_tests COMMAND log_analyzer_tests)
