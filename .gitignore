@@ -15,6 +15,10 @@ Makefile
 *.gch
 *.pch
 
+# Plan Docs
+docs/plan-docs/
+docs/plan-implementation/
+
 # Python
 __pycache__/
 *.py[cod]

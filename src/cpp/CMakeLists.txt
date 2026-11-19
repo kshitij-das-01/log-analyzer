@@ -18,7 +18,33 @@ set(SOURCE_FILES
 
 add_library(log_analyzer_core ${SOURCE_FILES})
 
-# GoogleTest — fetch and build
+# pybind11 bindings module for Python integration
+find_package(pybind11 REQUIRED)
+
+add_library(log_analyzer_bindings SHARED
+    src/bindings/bindings.cpp
+)
+set_target_properties(log_analyzer_bindings PROPERTIES
+    PYBIND11_MODULE log_analyzer_bindings
+    CXX_STANDARD 17
+)
+target_link_libraries(log_analyzer_bindings PRIVATE log_analyzer_core pybind11::pybind11)
+
+include(FetchContent)
+FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+)
+FetchContent_MakeAvailable(googletest)
+
+# Test executable
+add_executable(log_analyzer_tests
+    tests/test_LogLevel.cpp
+    tests/test_LogEntry.cpp
+    tests/test_InMemoryIndex.cpp
+)
+target_link_libraries(log_analyzer_tests PRIVATE log_analyzer_core GTest::gtest_main)
 include(FetchContent)
 FetchContent_Declare(
     googletest
