@@ -29,7 +29,10 @@ set_target_properties(log_analyzer_bindings PROPERTIES
     CXX_STANDARD 17
 )
 target_link_libraries(log_analyzer_bindings PRIVATE log_analyzer_core pybind11::pybind11)
-target_include_directories(log_analyzer_bindings PRIVATE ${CMAKE_SOURCE_DIR}/include)
+
+# Python library linking - needed for pybind11 C API symbols
+find_package(PythonLibs REQUIRED)
+target_link_libraries(log_analyzer_bindings PRIVATE ${PYTHON_LIBRARIES})
 
 # GoogleTest — fetch and build
 include(FetchContent)
