@@ -63,7 +63,11 @@ def _build_query_dict(params: StreamParams) -> dict[str, Any]:
 
 
 async def query_logs_full(params: StreamParams) -> list[dict[str, Any]]:
-    """Query the C++ In-Memory Index and return raw results."""
+    """Query the C++ In-Memory Index and return raw results.
+    
+    Supports filter parameters: start_time, end_time, log_level, service_name,
+    text_query, and limit. All parameters are optional.
+    """
     cpp_params = _build_query_dict(params)
     
     try:
@@ -76,7 +80,11 @@ async def query_logs_full(params: StreamParams) -> list[dict[str, Any]]:
 
 
 async def query_logs_search(params: SearchParams) -> list[dict[str, Any]]:
-    """Query with full-text search support."""
+    """Query with full-text search support.
+    
+    Supports all filter parameters from StreamParams plus full-text search.
+    SearchParams inherits from StreamParams, so all base parameters are available.
+    """
     cpp_params: dict[str, Any] = {}
     
     start_ns = _parse_datetime_value(params.start_time)
