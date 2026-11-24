@@ -70,3 +70,49 @@ class MetricsResponse(BaseModel):
     time_buckets: list[dict]
 
     model_config = {"arbitrary_types_allowed": True}
+
+
+# D4: FastAPI endpoint response models
+class InitResponse(BaseModel):
+    """Response model for /api/system/initialize endpoint."""
+    success: bool = Field(..., description="Whether initialization was successful")
+    entries_loaded: int = Field(..., description="Number of log entries loaded")
+    index_size: int = Field(..., description="Current InMemoryIndex size")
+    message: str = Field(..., description="Human-readable status message")
+    method: str = Field(..., description="Data loading method used")
+
+    model_config = {"arbitrary_types_allowed": True}
+
+
+class StatusResponse(BaseModel):
+    """Response model for /api/system/status endpoint."""
+    success: bool = Field(..., description="Whether status check was successful")
+    is_initialized: bool = Field(..., description="Whether the system is initialized")
+    index_size: int = Field(..., description="Current InMemoryIndex entry count")
+    has_real_bindings: bool = Field(..., description="Whether pybind11 bindings are functional")
+    python_version: str = Field(..., description="Python runtime version")
+    cpp_version: str = Field(..., description="C++ standard version")
+    data_source: str = Field(..., description="Current data loading method")
+    error: Optional[str] = Field(None, description="Error message if unsuccessful")
+
+    model_config = {"arbitrary_types_allowed": True}
+
+
+class PersistResponse(BaseModel):
+    """Response model for /api/system/persist endpoint."""
+    success: bool = Field(..., description="Whether data persistence was successful")
+    export_path: str = Field(..., description="File path where data was exported")
+    total_entries: int = Field(..., description="Number of entries exported")
+    message: str = Field(..., description="Human-readable status message")
+
+    model_config = {"arbitrary_types_allowed": True}
+
+
+class LoadResponse(BaseModel):
+    """Response model for /api/system/load endpoint."""
+    success: bool = Field(..., description="Whether data loading was successful")
+    entries_loaded: int = Field(..., description="Number of entries loaded from import file")
+    message: str = Field(..., description="Human-readable status message")
+    import_format: str = Field(..., description="Format of the import file")
+
+    model_config = {"arbitrary_types_allowed": True}

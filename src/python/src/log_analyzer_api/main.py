@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from log_analyzer_api.api.routes.logs import router as logs_router
 from log_analyzer_api.api.routes.dashboard import router as dashboard_router
+from log_analyzer_api.api.system import router as system_router
 
 app = FastAPI(
     title="Log Analyzer API",
@@ -22,6 +23,7 @@ app.add_middleware(
 # Include route registries
 app.include_router(logs_router)
 app.include_router(dashboard_router)
+app.include_router(system_router)
 
 
 @app.get("/", tags=["root"])
