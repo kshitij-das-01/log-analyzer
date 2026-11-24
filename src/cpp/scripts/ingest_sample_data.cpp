@@ -46,8 +46,19 @@ bool parse_syslog_line(const std::string& line,
 
 int main(int argc, char* argv[]) {
     std::string log_dir = "sample-data/logs";
+    
+    // Simple positional argument for log directory
     if (argc > 1) {
-        log_dir = argv[1];
+        // Check if it's an option first
+        std::string arg = argv[1];
+        if (arg == "--help" || arg == "-h") {
+            std::cout << "=== Log Analyzer CLI Tool ===" << std::endl;
+            std::cout << "Usage: ingest_sample_data [log_directory]" << std::endl;
+            std::cout << "  log_directory   Path to directory with app1.log and system.log" << std::endl;
+            std::cout << std::endl;
+            return 0;
+        }
+        log_dir = arg;
     }
     
     log_analyzer::InMemoryIndex index;
