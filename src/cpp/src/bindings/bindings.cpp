@@ -1,4 +1,4 @@
-#include "bindings.h"
+#include <log_analyzer/bindings/bindings.h>
 #include <log_analyzer/InMemoryIndex.h>
 #include <log_analyzer/LogEntry.h>
 #include <sstream>

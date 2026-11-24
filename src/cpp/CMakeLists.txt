@@ -29,7 +29,9 @@ set_target_properties(log_analyzer_bindings PROPERTIES
     CXX_STANDARD 17
 )
 target_link_libraries(log_analyzer_bindings PRIVATE log_analyzer_core pybind11::pybind11)
+target_include_directories(log_analyzer_bindings PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
+# GoogleTest — fetch and build
 include(FetchContent)
 FetchContent_Declare(
     googletest
@@ -44,22 +46,6 @@ add_executable(log_analyzer_tests
     tests/test_LogEntry.cpp
     tests/test_InMemoryIndex.cpp
 )
-target_link_libraries(log_analyzer_tests PRIVATE log_analyzer_core GTest::gtest_main)
-include(FetchContent)
-FetchContent_Declare(
-    googletest
-    URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
-    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-)
-FetchContent_MakeAvailable(googletest)
-
-# Test executable
-add_executable(log_analyzer_tests
-    tests/test_LogLevel.cpp
-    tests/test_LogEntry.cpp
-    tests/test_InMemoryIndex.cpp
-)
-
 target_link_libraries(log_analyzer_tests PRIVATE log_analyzer_core GTest::gtest_main)
 
 # Enable testing
