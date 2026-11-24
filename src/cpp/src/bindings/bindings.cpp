@@ -102,11 +102,8 @@ int populate_from_log_files(const std::string& log_dir) {
     std::ifstream app_file(app_log);
 
     if (app_file.is_open()) {
-        std::cerr << "DEBUG: Opened app1.log" << std::endl;
         std::string line;
-        int line_num = 0;
         while (std::getline(app_file, line)) {
-            line_num++;
             if (line.empty()) continue;
 
             // Parse syslog line: "Jan 15 10:30:45 host app.cpp INFO User logged in"
@@ -114,10 +111,8 @@ int populate_from_log_files(const std::string& log_dir) {
             std::string month_str, day_str, time_str, host, file, level, message;
 
             if (!(iss >> month_str >> day_str >> time_str >> host >> file >> level >> message)) {
-                std::cerr << "DEBUG: Line " << line_num << " failed to parse" << std::endl;
                 continue;
             }
-            std::cerr << "DEBUG: Line " << line_num << " parsed: level=" << level << " file=" << file << " message=" << message << std::endl;
 
             // Extract service from filename (remove .cpp extension)
             size_t dot_pos = file.find(".cpp");
@@ -133,15 +128,10 @@ int populate_from_log_files(const std::string& log_dir) {
                 message
             );
 
-            std::cerr << "DEBUG: Created entry, about to insert. entry.GetRawLogLevel()=" << entry.GetRawLogLevel() << std::endl;
             g_index.Insert(entry);
             total_count++;
-            std::cerr << "DEBUG: Inserted entry, total_count=" << total_count << std::endl;
         }
         app_file.close();
-        std::cerr << "DEBUG: Finished app1.log, total_count=" << total_count << std::endl;
-    } else {
-        std::cerr << "DEBUG: Failed to open app1.log" << std::endl;
     }
 
     // Read system.log
@@ -149,21 +139,16 @@ int populate_from_log_files(const std::string& log_dir) {
     std::ifstream sys_file(sys_log);
 
     if (sys_file.is_open()) {
-        std::cerr << "DEBUG: Opened system.log" << std::endl;
         std::string line;
-        int line_num = 0;
         while (std::getline(sys_file, line)) {
-            line_num++;
             if (line.empty()) continue;
 
             std::istringstream iss(line);
             std::string month_str, day_str, time_str, host, file, level, message;
 
             if (!(iss >> month_str >> day_str >> time_str >> host >> file >> level >> message)) {
-                std::cerr << "DEBUG: system.log line " << line_num << " failed to parse" << std::endl;
                 continue;
             }
-            std::cerr << "DEBUG: system.log line " << line_num << " parsed: level=" << level << " file=" << file << " message=" << message << std::endl;
 
             // Extract service from filename
             size_t dot_pos = file.find(".cpp");
@@ -183,13 +168,14 @@ int populate_from_log_files(const std::string& log_dir) {
             total_count++;
         }
         sys_file.close();
-        std::cerr << "DEBUG: Finished system.log, total_count=" << total_count << std::endl;
-    } else {
-        std::cerr << "DEBUG: Failed to open system.log" << std::endl;
     }
 
-    std::cerr << "DEBUG: populate_from_log_files returning total_count=" << total_count << std::endl;
     return total_count;
+}
+
+// Expose InMemoryIndex size
+size_t index_size() {
+    return g_index.GetSize();
 }
 
 // pybind11 module definition
@@ -199,17 +185,18 @@ PYBIND11_MODULE(log_analyzer_bindings, m) {
     // query_index wrapped to handle py::dict properly
     m.def("query_index", [](py::dict params) -> std::vector<py::object> {
         return query_index(params);
-    }, "Query the InMemoryIndex with Python dict params");
+    }, "Query the InMemoryIndex with Python dict params",
+         py::arg("params"));
 
-    // index_size wrapped
-    m.def("index_size", [](py::object = py::none()) -> size_t {
-        return g_index.GetSize();
-    }, "Get current InMemoryIndex size");
+    // index_size: Get current InMemoryIndex size
+    m.def("index_size", &index_size, "Get current InMemoryIndex size");
 
+    // has_real_bindings: Check if real pybind11 bindings are available
     m.def("has_real_bindings", [](){ return true; });
 
-    // populate_from_log_files wrapped
+    // populate_from_log_files: Parse syslog files and insert into InMemoryIndex
     m.def("populate_from_log_files", [](const std::string& log_dir) -> int {
         return populate_from_log_files(log_dir);
-    }, "Parse syslog files and insert into InMemoryIndex");
+    }, "Parse syslog files and insert into InMemoryIndex",
+         py::arg("log_dir"));
 }
