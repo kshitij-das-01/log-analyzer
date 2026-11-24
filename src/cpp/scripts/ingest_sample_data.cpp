@@ -22,11 +22,15 @@ bool parse_syslog_line(const std::string& line,
                        std::string& out_host,
                        std::string& out_file) {
     std::istringstream iss(line);
-    std::string month_str, day_str, time_str, service, host, file, level, message;
+    std::string month_str, day_str, time_str, host, file, level, message;
     
-    if (!(iss >> month_str >> day_str >> time_str >> service >> file >> level >> message)) {
+    if (!(iss >> month_str >> day_str >> time_str >> host >> file >> level >> message)) {
         return false;
     }
+    
+    // Extract service from filename (remove .cpp extension)
+    size_t dot_pos = file.find(".cpp");
+    std::string service = (dot_pos != std::string::npos) ? file.substr(0, dot_pos) : file;
     
     auto month_it = month_lookup.find(month_str);
     if (month_it == month_lookup.end()) return false;
@@ -110,7 +114,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Oldest timestamp: " << index.GetOldestTimestampNs() << std::endl;
     std::cout << "Newest timestamp: " << index.GetNewestTimestampNs() << std::endl;
     
-    // Print some entries
+    // Print sample entries
     std::vector<const log_analyzer::LogEntry*> results;
     index.Query(log_analyzer::QueryParams());
     std::cout << "\nSample entries:" << std::endl;
